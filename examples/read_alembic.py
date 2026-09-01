@@ -4,7 +4,7 @@
 import argparse
 from pathlib import Path
 
-from alembic.Abc import IArchive
+from alembic3d.Abc import IArchive
 
 
 def print_tree(obj, depth=0):

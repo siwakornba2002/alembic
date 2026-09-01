@@ -28,8 +28,9 @@ license = "BSD-3-Clause"
 # the Boost.Python (BSL-1.0) notice; Imath-LICENSE.md covers the vendored Imath /
 # PyImath binaries (BSD-3-Clause requires reproducing the notice for binaries).
 license-files = ["LICENSE.txt", "THIRD-PARTY.txt", "licenses/Imath-LICENSE.md"]
-requires-python = ">=3.10"
+requires-python = ">=3.9"
 classifiers = [
+    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
@@ -100,7 +101,7 @@ PYALEMBIC_BUNDLE_IMATH_DIR = { env = "PYALEMBIC_BUNDLE_IMATH_DIR", default = "" 
 # cibuildwheel: matrix + per-platform dependency provisioning.
 # ---------------------------------------------------------------------------
 [tool.cibuildwheel]
-build = ["cp310-*", "cp311-*", "cp312-*", "cp313-*", "cp314-*"]
+build = ["cp39-*", "cp310-*", "cp311-*", "cp312-*", "cp313-*", "cp314-*"]
 # musllinux/32-bit are out of scope; VFX tooling is glibc/64-bit.
 skip = ["*-musllinux_*", "*_i686", "*-win32", "*t-*"]
 build-verbosity = 1
@@ -112,7 +113,7 @@ before-all = "bash {project}/scripts/ci/wheel_deps_prepare.sh"
 before-build = "bash {project}/scripts/ci/wheel_deps_build.sh"
 # Run the upstream unittest suite through pytest. conftest.py in the Tests dir
 # aliases the renamed module back to "alembic" and imports the bundled imath;
-# tomli backports tomllib on 3.10 (see python/PyAlembic/Tests/conftest.py).
+# tomli backports tomllib on 3.9-3.10 (see python/PyAlembic/Tests/conftest.py).
 # NB: cibuildwheel splits test-requires on whitespace, so entries must be
 # space-free (no PEP 508 environment markers here). tomli is required
 # unconditionally — harmless on 3.11+, where conftest prefers stdlib tomllib.

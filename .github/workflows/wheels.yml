@@ -2,12 +2,12 @@ name: Wheels
 
 # Builds the alembic3d Python wheels (PyAlembic bindings, renamed to avoid the
 # SQLAlchemy "alembic" clash) for Windows, Linux (manylinux) and macOS across
-# the CPython versions declared in pyproject.toml ([tool.cibuildwheel].build).
+# CPython 3.9-3.14 as declared in pyproject.toml.
 # All configuration lives in pyproject.toml.
 #
 # Wheels upload as build artifacts on every run, and are attached to a GitHub
-# Release when a v* tag is pushed. To also publish to PyPI, uncomment the
-# "publish" job and configure a trusted publisher / the "pypi" environment.
+# Release when a v* tag is pushed. PyPI publishing is intentionally omitted in
+# this fork; workflow runs only create artifacts and optional GitHub Releases.
 
 on:
   workflow_dispatch:
@@ -164,30 +164,3 @@ jobs:
             gh release create "$TAG" dist/*.whl --repo "$GITHUB_REPOSITORY" \
               --title "$TAG" --generate-notes --verify-tag
           fi
-
-  # ---------------------------------------------------------------------------
-  # Publish to PyPI on v* tags via trusted publishing (OIDC, no stored token).
-  # Requires (one-time, on pypi.org): a trusted publisher for project "alembic3d"
-  # pointing at owner=redd76, repo=alembic-3d, workflow=wheels.yml,
-  # environment=pypi. See https://docs.pypi.org/trusted-publishers/. The first
-  # successful publish registers (reserves) the project name.
-  # ---------------------------------------------------------------------------
-  publish:
-    name: Publish to PyPI
-    needs: build_wheels
-    if: startsWith(github.ref, 'refs/tags/v')
-    runs-on: ubuntu-latest
-    environment: pypi
-    permissions:
-      id-token: write          # trusted publishing (OIDC)
-    steps:
-      - uses: actions/download-artifact@v4
-        with:
-          pattern: wheels-*
-          path: dist
-          merge-multiple: true
-      - uses: pypa/gh-action-pypi-publish@release/v1
-        with:
-          # Re-runs / re-pushed tags must not fail if a version is already on
-          # PyPI (a released version can never be re-uploaded).
-          skip-existing: true

@@ -27,8 +27,8 @@ was branched from.
 | File | Purpose |
 |------|---------|
 | `pyproject.toml` | scikit-build-core build config + all cibuildwheel settings (build list, per-OS dependency env, repair commands, pytest test config). Single source of the CPython version set and of the two independent name knobs (distribution name `[project].name`; import name `PYALEMBIC_MODULE_NAME`). Version is read from the CMake `project()` call. |
-| `.github/workflows/wheels.yml` | CI: builds wheels for Windows / Linux (manylinux) / macOS across the CPython set via `pypa/cibuildwheel`, uploads them as artifacts, and attaches them to a **GitHub Release** on `v*` tags. A `compute-matrix` job derives the Python matrix from `pyproject.toml`, then one job per (OS, Python) builds in parallel, each caching its compiled Boost+Imath. Contains a commented-out PyPI-publish job for later. |
-| `.github/workflows/upstream-sync.yml` | Weekly poll of upstream `alembic/alembic` (also manually runnable); when a new upstream release appears it opens a PR merging that release onto master. Merging it + pushing the mirror tag mirrors the release as our own. |
+| `.github/workflows/wheels.yml` | CI: builds wheels for Windows / Linux (manylinux) / macOS across the CPython set via `pypa/cibuildwheel`, uploads them as artifacts, and attaches them to a **GitHub Release** on `v*` tags. A `compute-matrix` job derives the Python matrix from `pyproject.toml`, then one job per (OS, Python) builds in parallel, each caching its compiled Boost+Imath. PyPI publishing is intentionally omitted in this fork. |
+| `.github/workflows/upstream-sync.yml` | Manually triggered sync of upstream `alembic/alembic`; when a new upstream release appears it opens a PR merging that release onto master. Merging it + pushing the mirror tag mirrors the release as our own. |
 | `cmake/PyAlembicWheel.cmake` | Bundles the prebuilt PyImath `imath` extension into the wheel. No-op outside scikit-build wheel builds. |
 | `scripts/ci/wheel_deps_prepare.sh` | cibuildwheel `before-all`: downloads Boost + Imath sources, bootstraps Boost's `b2`, patches Imath's Python CMake for manylinux. |
 | `scripts/ci/wheel_deps_build.sh` | cibuildwheel `before-build`: builds **shared** Boost.Python + Imath/PyImath against the exact target CPython. |
@@ -87,7 +87,7 @@ Imath's include dirs so the PyImath headers are found.
 ### `python/PyAlembic/Tests/{testCollections,testCurves,testTypes,testPropExcept}.py`
 Replaced `assertEquals` → `assertEqual` and `failUnlessRaises` → `assertRaises`.
 These unittest aliases were removed in Python 3.12; the change lets the upstream
-test suite run on the versions we build (3.10–3.13). No test logic changes.
+test suite run on the versions we build (3.9–3.14). No test logic changes.
 
 ## Deleted files
 
@@ -148,7 +148,7 @@ Both extensions must therefore resolve to the same shared libraries, and the
 - **macOS** — arm64 only. GitHub retired the free Intel `macos-13` runner and
   Intel macOS is now paid-only, so x86_64 macOS wheels are not built; Intel Mac
   users can build from source.
-- **Python** — CPython 3.10–3.13.
+- **Python** — CPython 3.9–3.14.
 
 ## Releasing
 Push a version tag and the workflow builds every wheel in the matrix and
@@ -166,8 +166,8 @@ gh workflow run wheels.yml --ref v1.8.12 -f force_release=true
 ```
 
 ## Tracking upstream
-`upstream-sync.yml` polls `alembic/alembic` **weekly** (Mondays), and is runnable
-on demand from the Actions tab ("Run workflow"). When upstream publishes a new
+`upstream-sync.yml` checks `alembic/alembic` only when run on demand from the
+Actions tab ("Run workflow"). When upstream publishes a new
 release it opens a **sync PR** that merges the upstream release tag onto master —
 bringing the new upstream code onto our packaging. On a merge conflict it opens an
 issue instead; if we're already in sync it does nothing. After you review and

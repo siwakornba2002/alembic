@@ -9,8 +9,8 @@ module back to ``alembic`` and imports ``imath``.
 
 The import name is read from the single source of truth (the pyproject knob),
 honouring the ``PYALEMBIC_MODULE_NAME`` build-time env override, so there is no
-second place to update on a rename. ``tomllib`` is stdlib on 3.11+; on 3.10 the
-``tomli`` backport is pulled in via cibuildwheel ``test-requires``.
+second place to update on a rename. ``tomllib`` is stdlib on 3.11+; on 3.9 and
+3.10 the ``tomli`` backport is pulled in via cibuildwheel ``test-requires``.
 """
 import importlib
 import os
@@ -19,7 +19,7 @@ from pathlib import Path
 
 try:
     import tomllib
-except ModuleNotFoundError:  # Python 3.10
+except ModuleNotFoundError:  # Python 3.9-3.10
     import tomli as tomllib
 
 # conftest.py -> Tests -> PyAlembic -> python -> <repo root>

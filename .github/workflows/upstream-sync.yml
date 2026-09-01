@@ -6,16 +6,16 @@ name: Upstream sync
 # (v<version>) builds the wheels and publishes our mirrored GitHub Release via
 # wheels.yml.
 #
-# GitHub cannot deliver another repo's release event to this repo, so detection
-# is a scheduled poll. Run it by hand any time via "Run workflow".
+# GitHub cannot deliver another repo's release event to this repo. This fork
+# keeps synchronization manual; run it from the Actions tab when needed.
 #
 # Optional: set a repo secret SYNC_PAT (a fine-grained PAT with contents +
 # pull-requests write) to have the sync PR trigger CI before you merge it.
 # Branches/PRs created with the default GITHUB_TOKEN do not trigger workflows.
 
 on:
-  schedule:
-    - cron: "0 6 * * 1"      # weekly, Mondays at 06:00 UTC
+  # Intentionally manual in this fork. This workflow can create branches,
+  # pull requests, and issues, so it must not write on a schedule by default.
   workflow_dispatch:
     inputs:
       tag:
